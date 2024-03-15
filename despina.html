@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despina: Predictive Maintenance - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Despina: Predictive Maintenance</h2>
+            <p>Despina is a module that focuses on predictive maintenance within infrastructure management. By leveraging machine learning algorithms and telemetry data analysis, Despina can predict potential hardware failures before they occur, allowing for proactive maintenance and minimizing downtime.</p>
+        </section>
+
+        <section>
+            <h3>Examples of Despina API Usage</h3>
+            <p><strong>Example 1:</strong> Predicting disk failure based on historical usage patterns.</p>
+            <pre>
+// API call to Despina for disk failure prediction
+POST /despina/disk/failure
+{
+  "data": {
+    "disk_id": "xyz123",
+    "usage_history": [85, 90, 92, 95, 89] // Example usage history
+  }
+}
+            </pre>
+            <p><strong>Example 2:</strong> Detecting network switch malfunction based on abnormal traffic patterns.</p>
+            <pre>
+// API call to Despina for network switch malfunction detection
+POST /despina/network/malfunction
+{
+  "data": {
+    "switch_id": "abc456",
+    "traffic_patterns": ["normal", "normal", "normal", "abnormal", "normal"] // Example traffic patterns
+  }
+}
+            </pre>
+            <p><strong>Example 3:</strong> Identifying server overheating risk based on temperature sensor readings.</p>
+            <pre>
+// API call to Despina for server overheating risk identification
+POST /despina/server/overheating
+{
+  "data": {
+    "server_id": "server789",
+    "temperature_readings": [72, 74, 76, 80, 85] // Example temperature readings
+  }
+}
+            </pre>
+            <p><strong>Example 4:</strong> Predicting hard drive degradation based on SMART data analysis.</p>
+            <pre>
+// API call to Despina for hard drive degradation prediction
+POST /despina/drive/degradation
+{
+  "data": {
+    "drive_id": "hdd234",
+    "smart_data": {...} // Example SMART data
+  }
+}
+            </pre>
+            <p><strong>Example 5:</strong> Forecasting UPS failure based on battery health diagnostics.</p>
+            <pre>
+// API call to Despina for UPS failure forecasting
+POST /despina/ups/failure
+{
+  "data": {
+    "ups_id": "ups789",
+    "battery_health": 75 // Example battery health percentage
+  }
+}
+            </pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proteus: Intelligent Resource Allocation - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Proteus: Intelligent Resource Allocation</h2>
+            <p>Proteus is a module focused on intelligent resource allocation within infrastructure management. By analyzing resource usage patterns and predicting future demand, Proteus optimizes the allocation of computing resources, ensuring optimal performance while minimizing wastage.</p>
+        </section>
+
+        <section>
+            <h3>Examples of Proteus API Usage</h3>
+            <p><strong>Example 1:</strong> Dynamic adjustment of server capacity based on workload fluctuations.</p>
+            <pre>
+// API call to Proteus for dynamic capacity adjustment
+POST /proteus/capacity/adjustment
+{
+  "data": {
+    "workload_pattern": [50, 60, 70, 80, 90] // Example workload pattern
+  }
+}
+            </pre>
+            <p><strong>Example 2:</strong> Recommendation for optimizing server instance types based on usage metrics.</p>
+            <pre>
+// API call to Proteus for instance type optimization
+POST /proteus/instance/optimize
+{
+  "data": {
+    "current_instance_type": "t2.micro",
+    "usage_metrics": {...} // Example usage metrics
+  }
+}
+            </pre>
+            <p><strong>Example 3:</strong> Identifying underutilized resources and reallocating them for better efficiency.</p>
+            <pre>
+// API call to Proteus for resource reallocation
+POST /proteus/resource/reallocate
+{
+  "data": {
+    "threshold": 20, // Threshold for underutilization
+    "action": "reallocate"
+  }
+}
+            </pre>
+            <p><strong>Example 4:</strong> Recommendation for optimal cloud service usage based on cost-effectiveness analysis.</p>
+            <pre>
+// API call to Proteus for cloud service recommendation
+POST /proteus/service/recommendation
+{
+  "data": {
+    "current_service": "AWS",
+    "cost_metrics": {...} // Example cost metrics
+  }
+}
+            </pre>
+            <p><strong>Example 5:</strong> Prediction of future resource demands to proactively allocate resources.</p>
+            <pre>
+// API call to Proteus for demand prediction
+POST /proteus/demand/predict
+{
+  "data": {
+    "historical_usage": [...], // Example historical usage data
+    "current_demand": 80 // Example current demand
+  }
+}
+            </pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

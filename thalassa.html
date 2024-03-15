@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thalassa: Anomaly Detection - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Thalassa: Anomaly Detection</h2>
+            <p>Thalassa is a module dedicated to anomaly detection within infrastructure management. By analyzing metrics and behavior patterns, Thalassa can identify deviations from normal operation, alerting administrators to potential issues or security threats.</p>
+        </section>
+
+        <section>
+            <h3>Examples of Thalassa API Usage</h3>
+            <p><strong>Example 1:</strong> Detecting abnormal spikes in CPU usage.</p>
+            <pre>
+// API call to Thalassa for CPU anomaly detection
+POST /thalassa/cpu/anomaly/detect
+{
+  "data": {
+    "cpu_utilization": [...] // Example CPU utilization data
+  }
+}
+            </pre>
+            <p><strong>Example 2:</strong> Monitoring network traffic for suspicious patterns indicative of a security breach.</p>
+            <pre>
+// API call to Thalassa for network anomaly detection
+POST /thalassa/network/anomaly/monitor
+{
+  "data": {
+    "network_traffic": {...} // Example network traffic data
+  }
+}
+            </pre>
+            <p><strong>Example 3:</strong> Identifying abnormal disk I/O behavior that may indicate a failing disk drive.</p>
+            <pre>
+// API call to Thalassa for disk I/O anomaly detection
+POST /thalassa/disk/io/anomaly/detect
+{
+  "data": {
+    "disk_io_activity": [...] // Example disk I/O activity data
+  }
+}
+            </pre>
+            <p><strong>Example 4:</strong> Analyzing user access logs to detect unauthorized access attempts.</p>
+            <pre>
+// API call to Thalassa for access log anomaly detection
+POST /thalassa/access/log/anomaly/detect
+{
+  "data": {
+    "access_logs": [...] // Example access log data
+  }
+}
+            </pre>
+            <p><strong>Example 5:</strong> Monitoring system performance metrics for deviations from baseline performance.</p>
+            <pre>
+// API call to Thalassa for performance anomaly detection
+POST /thalassa/performance/anomaly/monitor
+{
+  "data": {
+    "performance_metrics": {...} // Example performance metrics data
+  }
+}
+            </pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

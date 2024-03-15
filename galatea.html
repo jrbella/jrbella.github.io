@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galatea: Capacity Planning - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Galatea: Capacity Planning</h2>
+            <p>Galatea is a module designed for capacity planning within infrastructure management. By analyzing current resource utilization and forecasting future demands, Galatea helps organizations plan their infrastructure capacity effectively, ensuring they have the necessary resources to support their operations.</p>
+        </section>
+
+        <section>
+            <h3>Examples of Galatea API Usage</h3>
+            <p><strong>Example 1:</strong> Forecasting future compute resource requirements based on historical usage data.</p>
+            <pre>
+// API call to Galatea for capacity planning
+POST /galatea/capacity/forecast
+{
+  "data": {
+    "historical_usage": [...], // Example historical usage data
+    "timeframe": "monthly" // Example timeframe for forecasting
+  }
+}
+            </pre>
+            <p><strong>Example 2:</strong> Analyzing seasonal trends to adjust capacity accordingly.</p>
+            <pre>
+// API call to Galatea for seasonal capacity adjustment
+POST /galatea/capacity/adjust
+{
+  "data": {
+    "seasonal_trends": {...} // Example seasonal trend data
+  }
+}
+            </pre>
+            <p><strong>Example 3:</strong> Identifying underutilized resources and reallocating them to optimize capacity.</p>
+            <pre>
+// API call to Galatea for resource reallocation
+POST /galatea/resource/reallocate
+{
+  "data": {
+    "threshold": 20, // Threshold for underutilization
+    "action": "reallocate"
+  }
+}
+            </pre>
+            <p><strong>Example 4:</strong> Predicting storage requirements for future data growth.</p>
+            <pre>
+// API call to Galatea for storage capacity prediction
+POST /galatea/storage/predict
+{
+  "data": {
+    "data_growth_rate": 0.1, // Example data growth rate
+    "timeframe": "yearly" // Example timeframe for prediction
+  }
+}
+            </pre>
+            <p><strong>Example 5:</strong> Analyzing workload patterns to optimize resource allocation and avoid over-provisioning.</p>
+            <pre>
+// API call to Galatea for workload analysis
+POST /galatea/workload/analyze
+{
+  "data": {
+    "workload_patterns": {...} // Example workload pattern data
+  }
+}
+            </pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
