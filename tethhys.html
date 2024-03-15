@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tethys: Configuration Management - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Tethys: Configuration Management</h2>
+            <p>The Tethys automation API not only provisions infrastructure but also handles the configuration management aspects of the development environment. By integrating with Ansible, it automates the installation, configuration, and management of software components within the environment. This ensures consistency, reproducibility, and efficient deployment of development stacks.</p>
+        </section>
+
+        <section>
+            <h3>API Documentation</h3>
+            <ul>
+                <li><strong>provisionInfrastructure()</strong>: Initiates the provisioning process for infrastructure setup.</li>
+                <li><strong>configureEnvironment(playbookPath)</strong>: Configures the environment using the specified Ansible playbook.</li>
+                <li><strong>updateSoftwareComponents()</strong>: Updates the software components within the environment.</li>
+                <li><strong>rollbackConfiguration()</strong>: Rolls back the environment configuration to a previous state.</li>
+                <li><strong>checkConfigurationStatus()</strong>: Checks the status of the configuration process.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>Examples</h3>
+            <p><strong>Example 1:</strong> Initiating infrastructure provisioning:</p>
+            <pre>
+tethys.provisionInfrastructure();
+            </pre>
+            <p><strong>Example 2:</strong> Configuring environment using Ansible playbook:</p>
+            <pre>
+const playbookPath = '/path/to/ansible/playbook.yml';
+tethys.configureEnvironment(playbookPath);
+            </pre>
+            <p><strong>Example 3:</strong> Updating software components:</p>
+            <pre>
+tethys.updateSoftwareComponents();
+            </pre>
+            <p><strong>Example 4:</strong> Rolling back environment configuration:</p>
+            <pre>
+tethys.rollbackConfiguration();
+            </pre>
+            <p><strong>Example 5:</strong> Checking configuration status:</p>
+            <pre>
+const status = tethys.checkConfigurationStatus();
+console.log(status);
+            </pre>
+            <!-- More examples can be added here -->
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

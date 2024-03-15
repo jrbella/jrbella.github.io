@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triton: Intelligent Workflow Automation - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Triton: Intelligent Workflow Automation</h2>
+            <p>Triton is a machine learning module designed to automate complex workflows and decision-making processes within infrastructure management. By leveraging machine learning models trained on historical data and user behavior, Triton can automate routine tasks, dynamically adjust resource allocation, and make intelligent decisions based on predefined policies. This helps to free up human resources for other tasks.</p>
+        </section>
+
+        <section>
+            <h3>Examples of Triton API Usage</h3>
+            <p><strong>Example 1:</strong> Automatically scaling resources based on predicted workload trends.</p>
+            <pre>
+// API call to Triton for workload prediction
+POST /triton/workload/predict
+{
+  "data": {
+    "timestamp": "2024-03-22T08:00:00",
+    "workload": [50, 60, 70, 80, 90] // Example workload data
+  }
+}
+            </pre>
+            <p><strong>Example 2:</strong> Identifying and reallocating underutilized resources to optimize cost-efficiency.</p>
+            <pre>
+// API call to Triton for resource optimization
+POST /triton/resource/reallocation
+{
+  "data": {
+    "threshold": 20, // Threshold for underutilization
+    "action": "reallocate"
+  }
+}
+            </pre>
+            <p><strong>Example 3:</strong> Predicting potential infrastructure failures and preemptively scheduling maintenance.</p>
+            <pre>
+// API call to Triton for predictive maintenance
+POST /triton/maintenance/predict
+{
+  "data": {
+    "timestamp": "2024-03-22T08:00:00",
+    "failure_probability": 0.85 // Example failure probability
+  }
+}
+            </pre>
+            <p><strong>Example 4:</strong> Dynamically adjusting network configurations to optimize performance based on traffic patterns.</p>
+            <pre>
+// API call to Triton for network optimization
+POST /triton/network/optimization
+{
+  "data": {
+    "traffic_pattern": "high",
+    "action": "adjust"
+  }
+}
+            </pre>
+            <p><strong>Example 5:</strong> Automating backup and disaster recovery processes based on historical data and risk analysis.</p>
+            <pre>
+// API call to Triton for backup and recovery automation
+POST /triton/backup/automate
+{
+  "data": {
+    "risk_analysis": "high",
+    "action": "automate"
+  }
+}
+            </pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

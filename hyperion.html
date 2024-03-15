@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperion API Examples - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Hyperion API Examples</h2>
+            <p>The Hyperion API enables developers to manage infrastructure programmatically. Here are 10 examples of how it accomplishes various tasks:</p>
+        </section>
+
+        <section>
+            <h3>API Examples</h3>
+            <p><strong>Example 1:</strong> Provisioning a virtual machine instance:</p>
+            <pre>
+POST /hyperion/api/v1/instances
+{
+  "name": "example-instance",
+  "type": "t2.micro",
+  "image": "ami-0c55b159cbfafe1f0"
+}
+            </pre>
+            <p><strong>Example 2:</strong> Creating a virtual private cloud (VPC):</p>
+            <pre>
+POST /hyperion/api/v1/networks
+{
+  "name": "example-vpc",
+  "cidr": "10.0.0.0/16"
+}
+            </pre>
+            <p><strong>Example 3:</strong> Configuring a security group:</p>
+            <pre>
+POST /hyperion/api/v1/security-groups
+{
+  "name": "example-security-group",
+  "rules": [
+    {
+      "type": "inbound",
+      "protocol": "tcp",
+      "port": 80,
+      "source": "0.0.0.0/0"
+    }
+  ]
+}
+            </pre>
+            <p><strong>Example 4:</strong> Setting up an object storage bucket:</p>
+            <pre>
+POST /hyperion/api/v1/object-storage
+{
+  "name": "example-bucket",
+  "acl": "private"
+}
+            </pre>
+            <p><strong>Example 5:</strong> Defining an identity and access management (IAM) role:</p>
+            <pre>
+POST /hyperion/api/v1/iam-roles
+{
+  "name": "example-role",
+  "permissions": [
+    "read",
+    "write"
+  ]
+}
+            </pre>
+            <p><strong>Example 6:</strong> Launching a database instance:</p>
+            <pre>
+POST /hyperion/api/v1/databases
+{
+  "name": "example-db",
+  "type": "mysql",
+  "version": "5.7",
+  "storage": "50GB"
+}
+            </pre>
+            <p><strong>Example 7:</strong> Configuring a load balancer:</p>
+            <pre>
+POST /hyperion/api/v1/load-balancers
+{
+  "name": "example-lb",
+  "type": "application",
+  "listeners": [
+    {
+      "port": 80,
+      "protocol": "HTTP"
+    }
+  ],
+  "targets": [
+    {
+      "name": "target-group-1",
+      "port": 80
+    }
+  ]
+}
+            </pre>
+            <p><strong>Example 8:</strong> Defining a DNS record:</p>
+            <pre>
+POST /hyperion/api/v1/dns
+{
+  "name": "example.com",
+  "type": "A",
+  "value": "1.2.3.4"
+}
+            </pre>
+            <p><strong>Example 9:</strong> Configuring auto-scaling:</p>
+            <pre>
+POST /hyperion/api/v1/auto-scaling
+{
+  "name": "example-asg",
+  "min_instances": 2,
+  "max_instances": 5,
+  "target_cpu_utilization": 70
+}
+            </pre>
+            <p><strong>Example 10:</strong> Setting up monitoring and logging:</p>
+            <pre>
+POST /hyperion/api/v1/monitoring
+{
+  "name": "example-monitoring",
+  "type": "cloudwatch",
+  "metrics": ["CPUUtilization", "NetworkIn", "NetworkOut"],
+  "logs": ["app-logs", "system-logs"]
+}
+            </pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
