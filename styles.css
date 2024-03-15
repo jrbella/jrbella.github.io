@@ -72,9 +72,8 @@ main section p {
 /* Style for the cards */
 .card_collection {
     display: flex;
-    justify-content: space-around;
     flex-wrap: wrap;
-    padding: 20px;
+    justify-content: space-between;
 }
 
 .card {
@@ -127,4 +126,11 @@ main {
 
 .product p {
     color: #666;
+}
+
+/* media query for card */
+@media screen and (max-width: 768px) {
+    .card {
+        width: calc(100% - 20px); /* Adjust width for single column in mobile view */
+    }
 }
