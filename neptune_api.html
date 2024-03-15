@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neptune API - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Neptune API</h2>
+            <p>This documentation focuses on using AI to optimize resources and cost.</p>
+        </section>
+
+        <section>
+            <h3>Endpoints</h3>
+            <ul>
+                <li><strong>/resource-optimization</strong> - Optimize resource usage</li>
+                <li><strong>/cost-analysis</strong> - Analyze cost and suggest optimizations</li>
+                <!-- Add more endpoints as needed -->
+            </ul>
+        </section>
+
+        <section>
+            <h3>Authentication</h3>
+            <p>The Neptune API uses token-based authentication. You need to include a valid access token in the Authorization header of your requests.</p>
+        </section>
+
+        <section>
+            <h3>Error Handling</h3>
+            <p>The API returns appropriate HTTP status codes along with error messages in JSON format.</p>
+            <p>Example:</p>
+            <pre>
+{
+    "error": "Unauthorized",
+    "message": "Invalid access token"
+}
+            </pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

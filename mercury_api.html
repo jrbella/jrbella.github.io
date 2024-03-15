@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercury API - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Mercury API</h2>
+            <p>This is the API that interacts with all of the following submodules.</p>
+        </section>
+
+        <section>
+            <h3>Getting API Token</h3>
+            <p>To access the Mercury API, you need to obtain an access token by authenticating with your credentials.</p>
+            <p>Example using cURL:</p>
+            <pre>
+curl -X POST \
+  http://example.com/api/token \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "username": "your_username",
+    "password": "your_password"
+}'
+            </pre>
+            <p>Example Response:</p>
+            <pre>
+{
+    "access_token": "your_access_token",
+    "token_type": "bearer"
+}
+            </pre>
+        </section>
+
+        <section>
+            <h3>Connecting to Saturn API</h3>
+            <p>Once you have obtained the access token, you can use it to authenticate with the Saturn API.</p>
+            <p>Example using cURL:</p>
+            <pre>
+curl -X GET \
+  http://example.com/saturn-api/data \
+  -H 'Authorization: Bearer your_access_token'
+            </pre>
+        </section>
+
+        <section>
+            <h3>Connecting to Neptune API</h3>
+            <p>Similarly, you can use the access token to authenticate with the Neptune API.</p>
+            <p>Example using cURL:</p>
+            <pre>
+curl -X GET \
+  http://example.com/neptune-api/data \
+  -H 'Authorization: Bearer your_access_token'
+            </pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoebe: Environment Control - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Phoebe: Environment Control</h2>
+            <p>The Phoebe module supports environment customization through user-defined variables and configurations. Developers can easily define environment settings, credentials, and application configurations. This allows for the rapid setup of tailored environments that align with their project requirements.</p>
+        </section>
+
+        <section>
+            <h3>API Documentation</h3>
+            <ul>
+                <li><strong>setEnvironmentVariables(variables)</strong>: Sets environment variables based on the provided configuration.</li>
+                <li><strong>setCredentials(credentials)</strong>: Sets credentials for accessing external services or resources.</li>
+                <li><strong>setApplicationConfigurations(configurations)</strong>: Sets application-specific configurations.</li>
+                <li><strong>getEnvironmentSettings()</strong>: Retrieves the current environment settings.</li>
+                <li><strong>resetEnvironment()</strong>: Resets the environment to its default state.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>Examples</h3>
+            <p><strong>Example 1:</strong> Setting environment variables:</p>
+            <pre>
+const environmentVariables = {
+    PORT: 3000,
+    DEBUG: true,
+    API_KEY: 'my-api-key',
+    // Other environment variables...
+};
+
+phoebe.setEnvironmentVariables(environmentVariables);
+            </pre>
+            <p><strong>Example 2:</strong> Setting credentials for accessing databases:</p>
+            <pre>
+const credentials = {
+    DB_USER: 'username',
+    DB_PASSWORD: 'password',
+    DB_HOST: 'localhost',
+    // Other database credentials...
+};
+
+phoebe.setCredentials(credentials);
+            </pre>
+            <p><strong>Example 3:</strong> Setting application configurations:</p>
+            <pre>
+const appConfigurations = {
+    LOG_LEVEL: 'debug',
+    MAX_UPLOAD_SIZE: '10MB',
+    ENABLE_CACHE: true,
+    // Other application configurations...
+};
+
+phoebe.setApplicationConfigurations(appConfigurations);
+            </pre>
+            <p><strong>Example 4:</strong> Retrieving current environment settings:</p>
+            <pre>
+const currentSettings = phoebe.getEnvironmentSettings();
+console.log(currentSettings);
+            </pre>
+            <p><strong>Example 5:</strong> Resetting the environment to its default state:</p>
+            <pre>
+phoebe.resetEnvironment();
+            </pre>
+            <!-- More examples can be added here -->
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

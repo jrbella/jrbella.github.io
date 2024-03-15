@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dione: Multi-Environment Deployment - Project Jupiter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="terms_of_service.html">Terms of Service</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </nav>
+
+    <header class="banner">
+        <img id="main_page_banner" src="./img/jupiter_img_1.png" alt="Jupiter Banner">
+        <h1 id="logo_main">Jupiter</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Dione: Multi-Environment Deployment</h2>
+            <p>Dione enables the deployment of development environments in a variety of ecosystems, including on-premises infrastructure, cloud infrastructure, and container orchestration platforms like Kubernetes.</p>
+            <p>This flexibility allows developers to work within their required or preferred environments while leveraging the power of automation.</p>
+        </section>
+
+        <section>
+            <h3>API Documentation</h3>
+            <ul>
+                <li><strong>createEnvironment(environmentConfig)</strong>: Creates a new development environment based on the provided configuration.</li>
+                <li><strong>deployEnvironment(environmentID, deploymentOptions)</strong>: Deploys the specified development environment with the given deployment options.</li>
+                <li><strong>updateEnvironment(environmentID, updatedConfig)</strong>: Updates the configuration of an existing development environment.</li>
+                <li><strong>deleteEnvironment(environmentID)</strong>: Deletes the specified development environment.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>Examples</h3>
+            <p><strong>Example 1:</strong> Creating a development environment with AWS:</p>
+            <pre>
+const environmentConfig = {
+    name: 'my-development-environment',
+    provider: 'AWS',
+    region: 'us-east-1',
+    instanceType: 't2.micro',
+    subnetID: 'subnet-123456',
+    securityGroups: ['sg-789012'],
+    tags: { Environment: 'Development' },
+    userData: '... base64 encoded user data ...',
+    // Other configuration options...
+};
+
+dione.createEnvironment(environmentConfig);
+            </pre>
+            <p><strong>Example 2:</strong> Deploying a development environment to Kubernetes:</p>
+            <pre>
+const deploymentOptions = {
+    targetCluster: 'my-kubernetes-cluster',
+    namespace: 'development',
+    deploymentStrategy: 'rolling-update',
+    replicaCount: 3,
+    serviceType: 'LoadBalancer',
+    labels: { App: 'my-app' },
+    // Other deployment options...
+};
+
+dione.deployEnvironment('environmentID', deploymentOptions);
+            </pre>
+            <p><strong>Example 3:</strong> Updating environment configuration:</p>
+            <pre>
+const updatedConfig = {
+    instanceType: 't2.medium',
+    securityGroups: ['sg-789012', 'sg-345678'],
+    // Other updated configuration options...
+};
+
+dione.updateEnvironment('environmentID', updatedConfig);
+            </pre>
+            <p><strong>Example 4:</strong> Deleting a development environment:</p>
+            <pre>
+dione.deleteEnvironment('environmentID');
+            </pre>
+            <!-- More examples can be added here -->
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Project Jupiter. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
