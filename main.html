@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple Yu-Gi-Oh Style Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b1020;
+      color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1, h2, h3 {
+      text-align: center;
+    }
+
+    #game {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 15px;
+      background: #151a30;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      gap: 10px;
+    }
+
+    .zone {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      background: #202744;
+      min-height: 100px;
+    }
+
+    .zone-title {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      opacity: 0.8;
+    }
+
+    .card {
+      border-radius: 6px;
+      padding: 6px;
+      margin: 4px;
+      cursor: pointer;
+      border: 1px solid #888;
+      background: #f9e0a8;
+      color: #222;
+      font-size: 0.85rem;
+      width: 120px;
+    }
+
+    .card.monster {
+      border-top: 8px solid #b36b00;
+    }
+
+    .card.selected {
+      outline: 3px solid #4caf50;
+    }
+
+    .field-card-wrapper, .hand-area {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    #log {
+      height: 150px;
+      overflow-y: auto;
+      margin-top: 10px;
+      padding: 8px;
+      background: #111526;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      line-height: 1.3;
+      white-space: pre-wrap;
+    }
+
+    .lp-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 8px 14px;
+      margin: 3px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #controls {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .btn-primary {
+      background: #4caf50;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #2196f3;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: #f44336;
+      color: #fff;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    .cpu-zone {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <h1>Simple Yu-Gi-Oh Style Duel</h1>
+    <div class="lp-info">
+      <span>Player LP: <span id="player-lp">2000</span></span>
+      <span>CPU LP: <span id="cpu-lp">2000</span></span>
+    </div>
+
+    <div id="status">Your turn! Click "Draw" to start.</div>
+
+    <!-- CPU FIELD -->
+    <div class="row cpu-zone">
+      <div class="zone">
+        <div class="zone-title">CPU Field</div>
+        <div id="cpu-field" class="field-card-wrapper"></div>
+      </div>
+      <div class="zone">
+        <div class="zone-title">CPU Deck</div>
+        <div>Cards left: <span id="cpu-deck-count">0</span></div>
+      </div>
+    </div>
+
+    <!-- PLAYER FIELD -->
+    <div class="row">
+      <div class="zone">
+        <div class="zone-title">Your Field</div>
+        <div id="player-field" class="field-card-wrapper"></div>
+      </div>
+      <div class="zone">
+        <div class="zone-title">Your Deck</div>
+        <div>Cards left: <span id="player-deck-count">0</span></div>
+      </div>
+    </div>
+
+    <!-- PLAYER HAND -->
+    <div class="row">
+      <div class="zone" style="flex: 1 1 100%;">
+        <div class="zone-title">Your Hand (click a card to select it, then "Play Monster")</div>
+        <div id="player-hand" class="hand-area"></div>
+      </div>
+    </div>
+
+    <div id="controls">
+      <button id="btn-draw" class="btn-secondary">Draw</button>
+      <button id="btn-play" class="btn-primary">Play Monster</button>
+      <button id="btn-attack" class="btn-danger">Attack!</button>
+      <button id="btn-end-turn" class="btn-secondary">End Turn</button>
+      <button id="btn-restart" class="btn-secondary">Restart Game</button>
+    </div>
+
+    <h3>Battle Log</h3>
+    <div id="log"></div>
+  </div>
+
+  <script>
+    // ========= DATA MODELS =========
+
+    class Card {
+      constructor(name, atk) {
+        this.name = name;
+        this.atk = atk;
+      }
+    }
+
+    class Player {
+      constructor(name) {
+        this.name = name;
+        this.lp = 2000;
+        this.deck = [];
+        this.hand = [];
+        this.field = []; // max 1 monster in this simple version
+      }
+
+      drawCard() {
+        if (this.deck.length === 0) return null;
+        const card = this.deck.pop();
+        this.hand.push(card);
+        return card;
+      }
+
+      playMonsterFromHand(index) {
+        if (index < 0 || index >= this.hand.length) return null;
+        if (this.field.length >= 1) {
+          return null; // only 1 monster on field allowed
+        }
+        const card = this.hand.splice(index, 1)[0];
+        this.field.push(card);
+        return card;
+      }
+
+      getFieldMonster() {
+        return this.field.length > 0 ? this.field[0] : null;
+      }
+
+      clearFieldMonster() {
+        this.field = [];
+      }
+    }
+
+    class Game {
+      constructor() {
+        this.player = new Player("You");
+        this.cpu = new Player("CPU");
+        this.currentTurn = "player"; // "player" or "cpu"
+        this.hasPlayerDrawnThisTurn = false;
+        this.hasPlayerAttackedThisTurn = false;
+        this.gameOver = false;
+      }
+
+      setupDecks() {
+        // Simple sample cards
+        const sampleCards = [
+          new Card("Blue Flame Dragon", 1500),
+          new Card("Stone Golem", 1200),
+          new Card("Mystic Elf Knight", 1000),
+          new Card("Shadow Assassin", 1300),
+          new Card("Thunder Wolf", 1400),
+          new Card("Baby Dragon", 800),
+          new Card("Cyber Soldier", 1100),
+          new Card("Forest Guardian", 900)
+        ];
+
+        // Each deck gets a copy of each card (you can tweak this)
+        this.player.deck = this.shuffle([...sampleCards, ...sampleCards]);
+        this.cpu.deck = this.shuffle([...sampleCards, ...sampleCards]);
+      }
+
+      shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      reset() {
+        this.player = new Player("You");
+        this.cpu = new Player("CPU");
+        this.currentTurn = "player";
+        this.hasPlayerDrawnThisTurn = false;
+        this.hasPlayerAttackedThisTurn = false;
+        this.gameOver = false;
+        this.setupDecks();
+        logEl.textContent = "";
+        log("Game started! Both players have 2000 LP.");
+        updateUI();
+        setStatus("Your turn! Click \"Draw\" to start.");
+      }
+
+      endTurn() {
+        if (this.gameOver) return;
+        if (this.currentTurn === "player") {
+          this.currentTurn = "cpu";
+          this.hasPlayerDrawnThisTurn = false;
+          this.hasPlayerAttackedThisTurn = false;
+          setStatus("CPU's turn...");
+          updateUI();
+          setTimeout(() => this.cpuTurn(), 600);
+        } else {
+          this.currentTurn = "player";
+          setStatus("Your turn!");
+          updateUI();
+        }
+      }
+
+      attack(attacker, defender) {
+        if (this.gameOver) return;
+
+        const atkMonster = attacker.getFieldMonster();
+        if (!atkMonster) {
+          log(attacker.name + " has no monster to attack with!");
+          return;
+        }
+
+        const defMonster = defender.getFieldMonster();
+        if (!defMonster) {
+          // Direct attack
+          defender.lp -= atkMonster.atk;
+          log(`${attacker.name}'s ${atkMonster.name} attacks directly for ${atkMonster.atk} damage!`);
+        } else {
+          // Monster vs Monster
+          log(`${attacker.name}'s ${atkMonster.name} (${atkMonster.atk} ATK) attacks ${defender.name}'s ${defMonster.name} (${defMonster.atk} ATK)!`);
+
+          if (atkMonster.atk > defMonster.atk) {
+            const diff = atkMonster.atk - defMonster.atk;
+            defender.lp -= diff;
+            defender.clearFieldMonster();
+            log(`${defMonster.name} is destroyed! ${defender.name} takes ${diff} damage.`);
+          } else if (atkMonster.atk < defMonster.atk) {
+            const diff = defMonster.atk - atkMonster.atk;
+            attacker.lp -= diff;
+            attacker.clearFieldMonster();
+            log(`${atkMonster.name} is destroyed! ${attacker.name} takes ${diff} damage.`);
+          } else {
+            // Equal ATK
+            attacker.clearFieldMonster();
+            defender.clearFieldMonster();
+            log(`Both monsters are destroyed in a tie! No damage.`);
+          }
+        }
+
+        this.checkGameOver();
+        updateUI();
+      }
+
+      checkGameOver() {
+        if (this.player.lp <= 0 && this.cpu.lp <= 0) {
+          setStatus("Draw game! Both LP reached 0.");
+          log("The duel ends in a draw!");
+          this.gameOver = true;
+        } else if (this.player.lp <= 0) {
+          setStatus("You lost! CPU wins.");
+          log("You have lost all your LP. CPU wins.");
+          this.gameOver = true;
+        } else if (this.cpu.lp <= 0) {
+          setStatus("You win! CPU LP reached 0.");
+          log("You won the duel!");
+          this.gameOver = true;
+        }
+      }
+
+      cpuTurn() {
+        if (this.gameOver) return;
+
+        // CPU draws a card
+        const drawn = this.cpu.drawCard();
+        if (drawn) {
+          log("CPU draws a card.");
+        } else {
+          log("CPU cannot draw (no more cards).");
+        }
+        updateUI();
+
+        // CPU plays first monster from hand if field empty
+        if (!this.cpu.getFieldMonster()) {
+          const idx = this.cpu.hand.findIndex(c => c instanceof Card);
+          if (idx >= 0) {
+            const played = this.cpu.playMonsterFromHand(idx);
+            if (played) {
+              log(`CPU plays ${played.name} (${played.atk} ATK) to the field.`);
+            }
+          }
+        }
+        updateUI();
+
+        // CPU attacks if it has a monster
+        if (this.cpu.getFieldMonster()) {
+          setTimeout(() => {
+            this.attack(this.cpu, this.player);
+            if (!this.gameOver) {
+              setTimeout(() => {
+                this.endTurn();
+              }, 600);
+            }
+          }, 600);
+        } else {
+          log("CPU has no monster to attack with.");
+          setTimeout(() => this.endTurn(), 600);
+        }
+      }
+    }
+
+    // ========= GAME INSTANCE & UI =========
+
+    const logEl = document.getElementById("log");
+    const statusEl = document.getElementById("status");
+    const playerLpEl = document.getElementById("player-lp");
+    const cpuLpEl = document.getElementById("cpu-lp");
+    const playerDeckCountEl = document.getElementById("player-deck-count");
+    const cpuDeckCountEl = document.getElementById("cpu-deck-count");
+    const playerHandEl = document.getElementById("player-hand");
+    const playerFieldEl = document.getElementById("player-field");
+    const cpuFieldEl = document.getElementById("cpu-field");
+
+    const btnDraw = document.getElementById("btn-draw");
+    const btnPlay = document.getElementById("btn-play");
+    const btnAttack = document.getElementById("btn-attack");
+    const btnEndTurn = document.getElementById("btn-end-turn");
+    const btnRestart = document.getElementById("btn-restart");
+
+    const game = new Game();
+    let selectedHandIndex = null; // index of selected card in player's hand
+
+    function log(message) {
+      logEl.textContent += message + "\n";
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function updateUI() {
+      // LP
+      playerLpEl.textContent = Math.max(0, game.player.lp);
+      cpuLpEl.textContent = Math.max(0, game.cpu.lp);
+
+      // Deck counts
+      playerDeckCountEl.textContent = game.player.deck.length;
+      cpuDeckCountEl.textContent = game.cpu.deck.length;
+
+      // Player hand
+      playerHandEl.innerHTML = "";
+      game.player.hand.forEach((card, index) => {
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "card monster";
+        if (selectedHandIndex === index) {
+          cardDiv.classList.add("selected");
+        }
+        cardDiv.innerHTML = `
+          <strong>${card.name}</strong><br>
+          ATK: ${card.atk}
+        `;
+        cardDiv.addEventListener("click", () => {
+          if (game.currentTurn !== "player" || game.gameOver) return;
+          if (selectedHandIndex === index) {
+            selectedHandIndex = null;
+          } else {
+            selectedHandIndex = index;
+          }
+          updateUI();
+        });
+        playerHandEl.appendChild(cardDiv);
+      });
+
+      // Player field
+      playerFieldEl.innerHTML = "";
+      const pMonster = game.player.getFieldMonster();
+      if (pMonster) {
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "card monster";
+        cardDiv.innerHTML = `
+          <strong>${pMonster.name}</strong><br>
+          ATK: ${pMonster.atk}
+        `;
+        playerFieldEl.appendChild(cardDiv);
+      }
+
+      // CPU field
+      cpuFieldEl.innerHTML = "";
+      const cMonster = game.cpu.getFieldMonster();
+      if (cMonster) {
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "card monster";
+        cardDiv.innerHTML = `
+          <strong>${cMonster.name}</strong><br>
+          ATK: ${cMonster.atk}
+        `;
+        cpuFieldEl.appendChild(cardDiv);
+      }
+
+      // Buttons
+      const isPlayerTurn = game.currentTurn === "player" && !game.gameOver;
+      btnDraw.disabled = !isPlayerTurn || game.hasPlayerDrawnThisTurn;
+      btnPlay.disabled = !isPlayerTurn || game.player.field.length >= 1 || game.player.hand.length === 0;
+      btnAttack.disabled = !isPlayerTurn || !game.player.getFieldMonster() || game.hasPlayerAttackedThisTurn;
+      btnEndTurn.disabled = !isPlayerTurn;
+    }
+
+    // ========= BUTTON HANDLERS =========
+
+    btnDraw.addEventListener("click", () => {
+      if (game.currentTurn !== "player" || game.gameOver) return;
+      if (game.hasPlayerDrawnThisTurn) return;
+      const card = game.player.drawCard();
+      if (card) {
+        log(`You draw ${card.name} (${card.atk} ATK).`);
+      } else {
+        log("You cannot draw (no more cards in your deck).");
+      }
+      game.hasPlayerDrawnThisTurn = true;
+      updateUI();
+    });
+
+    btnPlay.addEventListener("click", () => {
+      if (game.currentTurn !== "player" || game.gameOver) return;
+      if (game.player.field.length >= 1) {
+        log("You already have a monster on the field.");
+        return;
+      }
+      if (selectedHandIndex === null) {
+        log("Select a card in your hand first.");
+        return;
+      }
+      const played = game.player.playMonsterFromHand(selectedHandIndex);
+      if (played) {
+        log(`You play ${played.name} (${played.atk} ATK) to the field.`);
+      } else {
+        log("Could not play that card.");
+      }
+      selectedHandIndex = null;
+      updateUI();
+    });
+
+    btnAttack.addEventListener("click", () => {
+      if (game.currentTurn !== "player" || game.gameOver) return;
+      if (game.hasPlayerAttackedThisTurn) {
+        log("You already attacked this turn.");
+        return;
+      }
+      const monster = game.player.getFieldMonster();
+      if (!monster) {
+        log("You have no monster to attack with.");
+        return;
+      }
+      game.attack(game.player, game.cpu);
+      game.hasPlayerAttackedThisTurn = true;
+    });
+
+    btnEndTurn.addEventListener("click", () => {
+      if (game.currentTurn !== "player" || game.gameOver) return;
+      game.endTurn();
+    });
+
+    btnRestart.addEventListener("click", () => {
+      selectedHandIndex = null;
+      game.reset();
+    });
+
+    // ========= START GAME =========
+    game.reset();
+  </script>
+</body>
+</html>
