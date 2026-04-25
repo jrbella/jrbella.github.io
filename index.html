@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎵 Sprunki Design Session</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: linear-gradient(180deg, #0a0a1a 0%, #0f0f2e 50%, #1a0a2e 100%);
+      min-height: 100vh;
+      font-family: 'Nunito', sans-serif;
+    }
+    @keyframes popIn {
+      0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 0.2; transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.3); }
+    }
+    .gen-btn { transition: transform 0.15s, box-shadow 0.15s; }
+    .gen-btn:hover  { transform: scale(1.06); }
+    .gen-btn:active { transform: scale(0.96); }
+    .source-card { transition: transform 0.2s; cursor: default; }
+    .source-card:hover { transform: scale(1.12) translateY(-4px); }
+    .char-card { animation: popIn 0.4s cubic-bezier(.175,.885,.32,1.275); }
+
+    /* Stars background */
+    .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    .star { position: absolute; border-radius: 50%; background: white; animation: twinkle linear infinite; }
+
+    #root { position: relative; z-index: 1; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a1a; }
+    ::-webkit-scrollbar-thumb { background: #c44dff55; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- Twinkling stars -->
+<div class="stars" id="stars"></div>
+
+<div id="root"></div>
+
+<script>
+  // Generate random stars
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      top:${Math.random()*100}%;
+      left:${Math.random()*100}%;
+      animation-duration:${Math.random()*4+2}s;
+      animation-delay:${Math.random()*5}s;
+    `;
+    starsEl.appendChild(s);
+  }
+</script>
+
+<script type="text/babel">
+const { useState, useCallback } = React;
+
+/* ─── DATA ─────────────────────────────────────────────────────────────── */
+const SOURCE_CHARACTERS = [
+  { name:"Robo",       color:"#C0C0C0", accent:"#FFB300", head:"rect",   emoji:"🤖", trait:"Robot with screen eyes" },
+  { name:"Violex",     color:"#9B27AF", accent:"#CE93D8", head:"round",  emoji:"😈", trait:"Purple demon with horns" },
+  { name:"Cobalt",     color:"#3949AB", accent:"#7986CB", head:"round",  emoji:"🔵", trait:"Deep blue sphere head" },
+  { name:"Lunara",     color:"#E0E0E0", accent:"#BDBDBD", head:"round",  emoji:"🦄", trait:"White unicorn spirit" },
+  { name:"Solara",     color:"#FFD600", accent:"#FF6F00", head:"sun",    emoji:"☀️", trait:"Yellow sun with antenna" },
+  { name:"Beatbox",    color:"#E65100", accent:"#FFB74D", head:"round",  emoji:"🎧", trait:"Orange DJ with headphones" },
+  { name:"Crimzon",    color:"#B71C1C", accent:"#EF5350", head:"round",  emoji:"👿", trait:"Red devil with horns" },
+  { name:"Zesty",      color:"#AEEA00", accent:"#76FF03", head:"crown",  emoji:"👑", trait:"Lime green crown head" },
+  { name:"Aqua",       color:"#80DEEA", accent:"#00BCD4", head:"round",  emoji:"💧", trait:"Light blue bubbly face" },
+  { name:"Graymatter", color:"#9E9E9E", accent:"#616161", head:"round",  emoji:"🌫️", trait:"Stoic gray observer" },
+  { name:"Sunny",      color:"#FFEE58", accent:"#F57F17", head:"sun",    emoji:"😄", trait:"Happy sunshine face" },
+  { name:"Treevil",    color:"#2E7D32", accent:"#8D6E63", head:"tree",   emoji:"🌳", trait:"Mysterious tree creature" },
+  { name:"Lula",       color:"#F8BBD0", accent:"#EC407A", head:"round",  emoji:"🌸", trait:"Soft pink dreamgirl" },
+  { name:"Bloop",      color:"#4FC3F7", accent:"#0288D1", head:"round",  emoji:"😮", trait:"Tiny blue surprised face" },
+  { name:"Foxbit",     color:"#C62828", accent:"#FF8A65", head:"round",  emoji:"🦊", trait:"Red fox with big eyes" },
+  { name:"Flora",      color:"#66BB6A", accent:"#FF80AB", head:"flower", emoji:"🌺", trait:"Green girl with flower hair" },
+  { name:"Blanc",      color:"#F5F5F5", accent:"#E0E0E0", head:"round",  emoji:"🤍", trait:"Pale serene smile" },
+  { name:"Magenta",    color:"#E91E63", accent:"#FF4081", head:"round",  emoji:"💗", trait:"Bold pink with magenta brows" },
+];
+
+const PALETTES = [
+  { color:"#FF6B9D", accent:"#FFB3D1", head:"round",  emoji:"🌷" },
+  { color:"#00E5FF", accent:"#84FFFF", head:"round",  emoji:"❄️" },
+  { color:"#FFD740", accent:"#FFAB00", head:"sun",    emoji:"⚡" },
+  { color:"#69F0AE", accent:"#00E676", head:"crown",  emoji:"🌿" },
+  { color:"#EA80FC", accent:"#CE93D8", head:"round",  emoji:"🔮" },
+  { color:"#FF6E40", accent:"#FFAB40", head:"round",  emoji:"🔥" },
+  { color:"#40C4FF", accent:"#80D8FF", head:"round",  emoji:"🌊" },
+  { color:"#B9F6CA", accent:"#69F0AE", head:"flower", emoji:"🍃" },
+  { color:"#FF4081", accent:"#FF80AB", head:"round",  emoji:"💖" },
+  { color:"#CCFF90", accent:"#B2FF59", head:"crown",  emoji:"🌱" },
+  { color:"#CFD8DC", accent:"#90A4AE", head:"round",  emoji:"🌙" },
+  { color:"#FFCCBC", accent:"#FFAB91", head:"round",  emoji:"🍑" },
+  { color:"#CE93D8", accent:"#AB47BC", head:"round",  emoji:"🍇" },
+  { color:"#80CBC4", accent:"#009688", head:"round",  emoji:"🌊" },
+  { color:"#FFF176", accent:"#F9A825", head:"sun",    emoji:"🌟" },
+  { color:"#EF9A9A", accent:"#E53935", head:"round",  emoji:"🍎" },
+];
+
+const NAMES = [
+  "Noxie","Zephyr","Lumix","Throx","Vela","Brixby","Skyla","Gloom",
+  "Prism","Wubble","Fizix","Daze","Ember","Crestix","Mochi","Vortex",
+  "Shiver","Glitchie","Neonix","Pulsar","Driftly","Hazel","Crux","Wobble",
+  "Splotch","Zinnia","Radix","Fumble","Twirlix","Blaze","Nexus","Pebble",
+  "Jinx","Fizzle","Kova","Sable","Blip","Dusk","Orbit","Pixie",
+  "Rumble","Glint","Thorn","Echo","Flare","Haze","Wisp","Quartz",
+];
+
+const TRAITS = [
+  "Moonlit wanderer who hums in reverb",
+  "Tiny chaos gremlin full of glitchy beats",
+  "Serene stargazer with echo powers",
+  "Disco phantom born from neon lights",
+  "Ancient forest singer with pollen voice",
+  "Thundercloud drummer who rattles windows",
+  "Bubble-pop dancer made of soap physics",
+  "Deep sea crooner with bioluminescent glow",
+  "Candy-core beatmaker with sugar rush energy",
+  "Shadow weaver who drops bass in the dark",
+  "Crystal cave dweller with harmonic resonance",
+  "Funky time traveler stuck in the groove",
+  "Volcanic beatboxer with lava lungs",
+  "Frozen tundra rapper with ice-cold flow",
+  "Garden sprite whose laugh sounds like wind chimes",
+  "Midnight radio host broadcasting from dreams",
+  "Cosmic DJ spinning black hole frequencies",
+  "Glitter storm with an infectious bassline",
+  "Sleepy oracle who beatboxes in her sleep",
+  "Specter of the dance floor, never seen twice",
+];
+
+/* ─── SVG CHARACTER ─────────────────────────────────────────────────────── */
+function SprunkiSVG({ character, size = 90 }) {
+  const { color, accent, head } = character;
+  const s = size, cx = s / 2, cy = s / 2;
+  const rad = a => a * Math.PI / 180;
+
+  return (
+    <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} xmlns="http://www.w3.org/2000/svg">
+      {/* BG */}
+      <defs>
+        <linearGradient id={`sky-${color.slice(1)}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#87CEEB"/>
+          <stop offset="100%" stopColor="#B0E2FF"/>
+        </linearGradient>
+      </defs>
+      <rect width={s} height={s} rx="12" fill={`url(#sky-${color.slice(1)})`}/>
+      <ellipse cx={cx} cy={s*0.72} rx={s*0.55} ry={s*0.18} fill="#5DBB63"/>
+      <rect x={cx-s*0.12} y={cy+s*0.18} width={s*0.24} height={s*0.3} rx="4" fill={color}/>
+
+      {/* Head shapes */}
+      {head === "rect" && <>
+        <rect x={cx-s*0.23} y={cy-s*0.32} width={s*0.46} height={s*0.46} rx="8" fill={accent}/>
+        {/* screen eyes */}
+        <rect x={cx-s*0.16} y={cy-s*0.17} width={s*0.11} height={s*0.15} rx="3" fill="#00BCD4"/>
+        <rect x={cx+s*0.05} y={cy-s*0.17} width={s*0.11} height={s*0.15} rx="3" fill="#00BCD4"/>
+        <line x1={cx} y1={cy+s*0.08} x2={cx} y2={cy+s*0.18} stroke={accent} strokeWidth="3"/>
+      </>}
+
+      {head === "sun" && <>
+        {[0,45,90,135,180,225,270,315].map((a,i)=>(
+          <line key={i}
+            x1={cx+Math.cos(rad(a))*s*0.27} y1={cy-s*0.06+Math.sin(rad(a))*s*0.27}
+            x2={cx+Math.cos(rad(a))*s*0.35} y2={cy-s*0.06+Math.sin(rad(a))*s*0.35}
+            stroke={accent} strokeWidth="3.5" strokeLinecap="round"/>
+        ))}
+        <circle cx={cx} cy={cy-s*0.06} r={s*0.22} fill={color}/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.1} r={s*0.07} fill="white"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.1} r={s*0.07} fill="white"/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.09} r={s*0.045} fill="#1a1a1a"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.09} r={s*0.045} fill="#1a1a1a"/>
+        <path d={`M ${cx-s*0.07} ${cy+s*0.05} Q ${cx} ${cy+s*0.12} ${cx+s*0.07} ${cy+s*0.05}`} stroke="#1a1a1a" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      </>}
+
+      {head === "crown" && <>
+        <polygon points={`${cx},${cy-s*0.42} ${cx-s*0.11},${cy-s*0.25} ${cx+s*0.11},${cy-s*0.25}`} fill={accent}/>
+        <polygon points={`${cx-s*0.19},${cy-s*0.34} ${cx-s*0.29},${cy-s*0.18} ${cx-s*0.07},${cy-s*0.18}`} fill={accent}/>
+        <polygon points={`${cx+s*0.19},${cy-s*0.34} ${cx+s*0.29},${cy-s*0.18} ${cx+s*0.07},${cy-s*0.18}`} fill={accent}/>
+        <circle cx={cx} cy={cy-s*0.06} r={s*0.22} fill={color}/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.1} r={s*0.07} fill="white"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.1} r={s*0.07} fill="white"/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.09} r={s*0.045} fill="#1a1a1a"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.09} r={s*0.045} fill="#1a1a1a"/>
+        <path d={`M ${cx-s*0.07} ${cy+s*0.05} Q ${cx} ${cy+s*0.12} ${cx+s*0.07} ${cy+s*0.05}`} stroke="#1a1a1a" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      </>}
+
+      {head === "flower" && <>
+        {[0,60,120,180,240,300].map((a,i)=>(
+          <circle key={i}
+            cx={cx+Math.cos(rad(a))*s*0.26} cy={cy-s*0.06+Math.sin(rad(a))*s*0.26}
+            r={s*0.1} fill={accent} opacity="0.85"/>
+        ))}
+        <circle cx={cx} cy={cy-s*0.06} r={s*0.22} fill={color}/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.1} r={s*0.07} fill="white"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.1} r={s*0.07} fill="white"/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.09} r={s*0.045} fill="#1a1a1a"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.09} r={s*0.045} fill="#1a1a1a"/>
+        <path d={`M ${cx-s*0.07} ${cy+s*0.05} Q ${cx} ${cy+s*0.12} ${cx+s*0.07} ${cy+s*0.05}`} stroke="#1a1a1a" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      </>}
+
+      {head === "tree" && <>
+        <ellipse cx={cx} cy={cy-s*0.18} rx={s*0.28} ry={s*0.3} fill={color}/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.16} r={s*0.07} fill="white"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.16} r={s*0.07} fill="white"/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.15} r={s*0.045} fill="#1a1a1a"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.15} r={s*0.045} fill="#1a1a1a"/>
+        <path d={`M ${cx-s*0.07} ${cy+s*0.0} Q ${cx} ${cy+s*0.07} ${cx+s*0.07} ${cy+s*0.0}`} stroke="#1a1a1a" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      </>}
+
+      {head === "round" && <>
+        <circle cx={cx} cy={cy-s*0.06} r={s*0.23} fill={color}/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.1} r={s*0.075} fill="white"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.1} r={s*0.075} fill="white"/>
+        <circle cx={cx-s*0.09} cy={cy-s*0.09} r={s*0.048} fill="#1a1a1a"/>
+        <circle cx={cx+s*0.09} cy={cy-s*0.09} r={s*0.048} fill="#1a1a1a"/>
+        <circle cx={cx-s*0.075} cy={cy-s*0.11} r={s*0.018} fill="white" opacity="0.7"/>
+        <circle cx={cx+s*0.105} cy={cy-s*0.11} r={s*0.018} fill="white" opacity="0.7"/>
+        <path d={`M ${cx-s*0.08} ${cy+s*0.06} Q ${cx} ${cy+s*0.13} ${cx+s*0.08} ${cy+s*0.06}`} stroke="#1a1a1a" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      </>}
+
+      {/* Ears (for round/crown/flower) */}
+      {["round","crown","flower"].includes(head) && <>
+        <ellipse cx={cx-s*0.27} cy={cy-s*0.06} rx={s*0.07} ry={s*0.1} fill="#999" opacity="0.6"/>
+        <ellipse cx={cx+s*0.27} cy={cy-s*0.06} rx={s*0.07} ry={s*0.1} fill="#999" opacity="0.6"/>
+      </>}
+    </svg>
+  );
+}
+
+/* ─── CARDS ─────────────────────────────────────────────────────────────── */
+function GeneratedCard({ character }) {
+  return (
+    <div className="char-card" style={{
+      background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+      border: `2px solid ${character.color}`,
+      borderRadius: "16px",
+      padding: "16px 12px",
+      textAlign: "center",
+      boxShadow: `0 0 24px ${character.color}44`,
+      minWidth: "140px",
+      maxWidth: "155px",
+      flex: "0 0 auto",
+    }}>
+      <div style={{ display:"flex", justifyContent:"center", marginBottom:"8px" }}>
+        <SprunkiSVG character={character} size={100}/>
+      </div>
+      <div style={{
+        fontFamily:"'Fredoka One',cursive",
+        fontSize:"18px",
+        color: character.color,
+        textShadow:`0 0 12px ${character.color}88`,
+        marginBottom:"4px",
+      }}>{character.name}</div>
+      <div style={{
+        fontFamily:"'Nunito',sans-serif",
+        fontSize:"11px",
+        color:"#aaa",
+        lineHeight:1.35,
+        marginBottom:"6px",
+      }}>{character.trait}</div>
+      <div style={{ fontSize:"20px" }}>{character.emoji}</div>
+    </div>
+  );
+}
+
+function SourceCard({ character }) {
+  return (
+    <div className="source-card" style={{ textAlign:"center" }}>
+      <SprunkiSVG character={character} size={60}/>
+      <div style={{
+        fontFamily:"'Fredoka One',cursive",
+        fontSize:"10px",
+        color: character.color,
+        textShadow:`0 0 6px ${character.color}88`,
+        marginTop:"3px",
+      }}>{character.name}</div>
+    </div>
+  );
+}
+
+/* ─── HELPERS ────────────────────────────────────────────────────────────── */
+function pickFresh(arr, used) {
+  const fresh = arr.filter(x => !used.has(x));
+  return (fresh.length ? fresh : arr)[Math.floor(Math.random() * (fresh.length || arr.length))];
+}
+
+/* ─── MAIN APP ───────────────────────────────────────────────────────────── */
+function App() {
+  const [generated, setGenerated] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [usedNames, setUsedNames] = useState(new Set());
+  const [usedTraits, setUsedTraits] = useState(new Set());
+
+  const makeChar = useCallback((uN, uT) => {
+    const palette = PALETTES[Math.floor(Math.random() * PALETTES.length)];
+    const name = pickFresh(NAMES, uN);
+    const trait = pickFresh(TRAITS, uT);
+    uN.add(name); uT.add(trait);
+    return { ...palette, name, trait };
+  }, []);
+
+  const genOne = () => {
+    if (loading) return;
+    setLoading(true);
+    const uN = new Set(usedNames), uT = new Set(usedTraits);
+    const c = makeChar(uN, uT);
+    setUsedNames(uN); setUsedTraits(uT);
+    setGenerated(p => [c, ...p]);
+    setLoading(false);
+  };
+
+  const genBatch = (n = 6) => {
+    if (loading) return;
+    setLoading(true);
+    const uN = new Set(usedNames), uT = new Set(usedTraits);
+    const batch = Array.from({length:n}, () => makeChar(uN, uT));
+    setUsedNames(uN); setUsedTraits(uT);
+    setGenerated(p => [...batch, ...p]);
+    setLoading(false);
+  };
+
+  const clearAll = () => {
+    setGenerated([]);
+    setUsedNames(new Set());
+    setUsedTraits(new Set());
+  };
+
+  return (
+    <div style={{ padding:"20px", maxWidth:"1100px", margin:"0 auto" }}>
+
+      {/* ── Header ── */}
+      <div style={{ textAlign:"center", marginBottom:"28px", paddingTop:"12px" }}>
+        <div style={{
+          fontFamily:"'Fredoka One',cursive",
+          fontSize:"clamp(26px,7vw,52px)",
+          background:"linear-gradient(90deg,#ff6b9d,#c44dff,#4d9fff,#69f0ae,#ff6b9d)",
+          backgroundSize:"300%",
+          WebkitBackgroundClip:"text",
+          WebkitTextFillColor:"transparent",
+          animation:"shimmer 5s linear infinite",
+          letterSpacing:"2px",
+          lineHeight:1.1,
+        }}>🎵 SPRUNKI DESIGN SESSION 🎵</div>
+        <p style={{ color:"#7777aa", fontSize:"13px", marginTop:"8px", fontFamily:"'Nunito',sans-serif" }}>
+          Your roster · Generate new characters · Keep the vibes going
+        </p>
+      </div>
+
+      {/* ── Source Roster ── */}
+      <div style={{
+        background:"rgba(255,255,255,0.04)",
+        border:"1px solid rgba(255,255,255,0.09)",
+        borderRadius:"18px",
+        padding:"18px",
+        marginBottom:"24px",
+      }}>
+        <div style={{
+          fontFamily:"'Fredoka One',cursive",
+          color:"#c44dff",
+          fontSize:"15px",
+          marginBottom:"14px",
+          textAlign:"center",
+          letterSpacing:"1px",
+        }}>📸 SOURCE ROSTER — {SOURCE_CHARACTERS.length} characters detected</div>
+        <div style={{ display:"flex", flexWrap:"wrap", gap:"14px", justifyContent:"center" }}>
+          {SOURCE_CHARACTERS.map((c,i) => <SourceCard key={i} character={c}/>)}
+        </div>
+      </div>
+
+      {/* ── Buttons ── */}
+      <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap", marginBottom:"28px" }}>
+        <button className="gen-btn" onClick={genOne} disabled={loading} style={{
+          background:"linear-gradient(135deg,#ff6b9d,#c44dff)",
+          border:"none", borderRadius:"50px",
+          padding:"14px 30px", color:"white",
+          fontFamily:"'Fredoka One',cursive", fontSize:"16px",
+          cursor:"pointer", letterSpacing:"1px",
+          boxShadow:"0 4px 20px #c44dff44",
+        }}>✨ NEW SPRUNKI</button>
+
+        <button className="gen-btn" onClick={() => genBatch(6)} disabled={loading} style={{
+          background:"linear-gradient(135deg,#4d9fff,#00e5ff)",
+          border:"none", borderRadius:"50px",
+          padding:"14px 30px", color:"white",
+          fontFamily:"'Fredoka One',cursive", fontSize:"16px",
+          cursor:"pointer", letterSpacing:"1px",
+          boxShadow:"0 4px 20px #4d9fff44",
+        }}>🎲 BATCH × 6</button>
+
+        <button className="gen-btn" onClick={() => genBatch(12)} disabled={loading} style={{
+          background:"linear-gradient(135deg,#69f0ae,#00bcd4)",
+          border:"none", borderRadius:"50px",
+          padding:"14px 30px", color:"#0a1a0f",
+          fontFamily:"'Fredoka One',cursive", fontSize:"16px",
+          cursor:"pointer", letterSpacing:"1px",
+          boxShadow:"0 4px 20px #69f0ae44",
+        }}>🎆 BATCH × 12</button>
+
+        {generated.length > 0 && (
+          <button className="gen-btn" onClick={clearAll} style={{
+            background:"rgba(255,255,255,0.07)",
+            border:"1px solid rgba(255,255,255,0.18)",
+            borderRadius:"50px", padding:"14px 30px",
+            color:"#888", fontFamily:"'Fredoka One',cursive",
+            fontSize:"16px", cursor:"pointer",
+          }}>🗑 CLEAR ALL</button>
+        )}
+      </div>
+
+      {/* ── Counter ── */}
+      {generated.length > 0 && (
+        <div style={{ textAlign:"center", marginBottom:"18px" }}>
+          <span style={{
+            fontFamily:"'Fredoka One',cursive",
+            color:"#69f0ae", fontSize:"15px",
+            textShadow:"0 0 10px #69f0ae88",
+          }}>
+            {generated.length} new Sprunki{generated.length !== 1 ? "s" : ""} designed! 🎉
+          </span>
+        </div>
+      )}
+
+      {/* ── Gallery ── */}
+      {generated.length === 0 ? (
+        <div style={{
+          textAlign:"center", padding:"60px 24px",
+          color:"#333355",
+        }}>
+          <div style={{
+            fontSize:"56px", marginBottom:"14px",
+            animation:"float 2.5s ease-in-out infinite",
+            display:"inline-block",
+          }}>🎵</div>
+          <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:"20px", color:"#555588" }}>
+            Hit "New Sprunki" to start generating!
+          </div>
+        </div>
+      ) : (
+        <div style={{
+          display:"flex", flexWrap:"wrap",
+          gap:"16px", justifyContent:"center",
+        }}>
+          {generated.map((c,i) => <GeneratedCard key={i} character={c}/>)}
+        </div>
+      )}
+
+      {/* ── Footer ── */}
+      <div style={{
+        textAlign:"center", marginTop:"48px", paddingBottom:"24px",
+        color:"#333355", fontSize:"12px",
+        fontFamily:"'Nunito',sans-serif",
+      }}>
+        Made with 🎵 · Sprunki Design Session
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
