@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Sprunki Babies 🍼</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+:root{
+  --bg:#1a0a2e;
+  --stage:#12072a;
+  --tray:#fce4f0;
+  --tray2:#f8c8e0;
+  --beat-off:#2d1050;
+  --pink:#ff6fa3;
+  --glow:rgba(255,111,163,0.4);
+}
+
+body{
+  background:var(--bg);
+  font-family:'Baloo 2',cursive;
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  user-select:none;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+#hdr{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 16px 6px;
+  flex-shrink:0;
+}
+#title{color:#fff;font-size:20px;font-weight:800;letter-spacing:.04em;}
+#title span{color:var(--pink);}
+#fire-meter{
+  font-size:13px;font-weight:700;
+  color:#ffcc00;
+  background:rgba(255,200,0,.12);
+  border:1.5px solid rgba(255,200,0,.3);
+  border-radius:20px;
+  padding:3px 12px;
+  transition:all .3s;
+  min-width:80px;text-align:center;
+}
+
+/* ── BEAT BAR ────────────────────────────────── */
+#beat-bar{
+  display:flex;
+  justify-content:center;
+  gap:5px;
+  padding:6px 16px;
+  flex-shrink:0;
+}
+.step{
+  width:14px;height:14px;
+  border-radius:50%;
+  background:var(--beat-off);
+  transition:background .05s, transform .05s;
+  flex-shrink:0;
+}
+.step.quarter{border:1px solid #3d1a6a;}
+.step.active{background:var(--pink);transform:scale(1.35);box-shadow:0 0 8px var(--glow);}
+.step.accent{background:#c94070;}
+
+/* ── STAGE ───────────────────────────────────── */
+#stage{
+  flex:1;
+  background:var(--stage);
+  margin:0 12px;
+  border-radius:20px;
+  position:relative;
+  overflow:hidden;
+  border:1.5px solid #2d1050;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+/* spotlight */
+#stage::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 40%, rgba(120,60,200,.13) 0%, transparent 70%);
+  pointer-events:none;
+}
+/* grid floor */
+#stage::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:40%;
+  background:repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 1px, transparent 1px, transparent 40px),
+             repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 1px, transparent 1px, transparent 40px);
+  pointer-events:none;
+}
+#hint{color:rgba(255,255,255,.18);font-size:15px;font-weight:500;letter-spacing:.06em;pointer-events:none;}
+#active-zone{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:16px;
+  padding:20px;
+}
+
+/* ── STAGE CHARACTER ─────────────────────────── */
+.stage-char{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  cursor:pointer;
+  animation:popIn .3s cubic-bezier(.34,1.56,.64,1) both;
+  position:relative;
+}
+@keyframes popIn{
+  from{opacity:0;transform:scale(0) translateY(20px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+.stage-char svg{
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.4));
+  transition:filter .1s;
+}
+.stage-char.playing svg{
+  animation:beatBounce .13s ease;
+}
+@keyframes beatBounce{
+  0%{transform:translateY(0) scale(1);}
+  40%{transform:translateY(-10px) scale(1.08);}
+  100%{transform:translateY(0) scale(1);}
+}
+.stage-char.glow svg{
+  filter:drop-shadow(0 0 18px var(--char-glow,rgba(255,111,163,.8)));
+}
+.stage-name{
+  color:rgba(255,255,255,.75);
+  font-size:11px;font-weight:700;
+  letter-spacing:.06em;
+}
+.remove-ring{
+  position:absolute;
+  top:-6px;right:-6px;
+  width:20px;height:20px;
+  background:#ff4466;
+  border-radius:50%;
+  color:white;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+  line-height:1;
+}
+
+/* ── TRAY ────────────────────────────────────── */
+#tray{
+  background:var(--tray);
+  border-top:3px solid #f8aacf;
+  padding:10px 10px 14px;
+  flex-shrink:0;
+}
+#tray-label{
+  text-align:center;
+  color:#c9558a;
+  font-size:10px;font-weight:700;
+  letter-spacing:.14em;
+  margin-bottom:8px;
+}
+#char-row{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  padding:0 4px;
+}
+.tray-char{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:transform .15s;
+}
+.tray-char:active{transform:scale(.9);}
+.tray-char.on svg{opacity:.45;filter:grayscale(0.5);}
+.tray-char svg{
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,.15));
+}
+.tray-label{
+  font-size:10px;font-weight:700;
+  color:#a0305a;
+  letter-spacing:.04em;
+}
+
+/* ── SPARKLE ─────────────────────────────────── */
+.spark{
+  position:fixed;
+  pointer-events:none;
+  border-radius:50%;
+  animation:sparkle .6s ease-out forwards;
+}
+@keyframes sparkle{
+  0%{opacity:1;transform:translate(0,0) scale(1);}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0);}
+}
+
+/* ── FIRE TOAST ──────────────────────────────── */
+#toast{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  background:#ff4488;
+  color:white;
+  padding:10px 28px;
+  border-radius:30px;
+  font-size:22px;font-weight:800;
+  letter-spacing:.06em;
+  pointer-events:none;
+  z-index:99;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+  opacity:0;
+}
+#toast.show{transform:translate(-50%,-50%) scale(1);opacity:1;}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div id="title">🍼 <span>Sprunki</span> Babies</div>
+  <div id="fire-meter">tap a baby!</div>
+</div>
+
+<div id="beat-bar"></div>
+
+<div id="stage">
+  <div id="hint">tap a baby below ↓</div>
+  <div id="active-zone"></div>
+</div>
+
+<div id="tray">
+  <div id="tray-label">CHARACTER SELECT</div>
+  <div id="char-row"></div>
+</div>
+
+<div id="toast">🔥 FIRE BEAT!</div>
+
+<script>
+// ── CHARACTER DATA ────────────────────────────────────────────────────────────
+const CHARS = {
+  pinki: {
+    name:'Pinki', color:'#ff6fa3', light:'#ffd6e7', glow:'rgba(255,111,163,.9)',
+    pattern:[1,0,0,0, 0,0,1,0, 0,0,0,1, 0,1,0,0],
+    type:'bell', notes:[523,659,784,880,784,659],
+    svg: (s=80) => `<svg width="${s}" height="${s+10}" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="40" cy="78" rx="26" ry="7" fill="rgba(0,0,0,.18)"/>
+      <!-- ears --><ellipse cx="24" cy="28" rx="10" ry="26" fill="#ff8fc0" transform="rotate(-10,24,28)"/>
+      <ellipse cx="24" cy="28" rx="5.5" ry="19" fill="#ffcfe2" transform="rotate(-10,24,28)"/>
+      <ellipse cx="56" cy="28" rx="10" ry="26" fill="#ff8fc0" transform="rotate(10,56,28)"/>
+      <ellipse cx="56" cy="28" rx="5.5" ry="19" fill="#ffcfe2" transform="rotate(10,56,28)"/>
+      <!-- body --><ellipse cx="40" cy="68" rx="24" ry="18" fill="#ff8fc0"/>
+      <!-- head --><circle cx="40" cy="46" r="28" fill="#ffd6e7"/>
+      <circle cx="30" cy="38" r="16" fill="#ffe4ef" opacity=".5"/>
+      <!-- bow --><ellipse cx="28" cy="22" rx="10" ry="7" fill="#ff4d95" transform="rotate(-20,28,22)"/>
+      <ellipse cx="52" cy="22" rx="10" ry="7" fill="#ff4d95" transform="rotate(20,52,22)"/>
+      <circle cx="40" cy="23" r="6" fill="#c9004d"/>
+      <!-- onesie --><ellipse cx="40" cy="78" rx="20" ry="10" fill="#fff0f7"/>
+      <!-- eyes --><ellipse cx="31" cy="46" rx="7" ry="8" fill="white"/>
+      <ellipse cx="32" cy="47" rx="4" ry="5" fill="#1a0010"/>
+      <circle cx="34" cy="44" r="2" fill="white"/>
+      <ellipse cx="49" cy="46" rx="7" ry="8" fill="white"/>
+      <ellipse cx="50" cy="47" rx="4" ry="5" fill="#1a0010"/>
+      <circle cx="52" cy="44" r="2" fill="white"/>
+      <!-- lashes --><line x1="24" y1="39" x2="21" y2="35" stroke="#1a0010" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="29" y1="38" x2="28" y2="33" stroke="#1a0010" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="42" y1="38" x2="42" y2="33" stroke="#1a0010" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="47" y1="38" x2="49" y2="33" stroke="#1a0010" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- nose --><ellipse cx="40" cy="53" rx="4" ry="3" fill="#ff6fa3"/>
+      <!-- mouth --><path d="M33 58 Q40 64 47 58" stroke="#ff6fa3" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- blush --><ellipse cx="22" cy="54" rx="8" ry="5" fill="#ff90b8" opacity=".55"/>
+      <ellipse cx="58" cy="54" rx="8" ry="5" fill="#ff90b8" opacity=".55"/>
+      <!-- tail --><circle cx="64" cy="66" r="9" fill="white"/><circle cx="64" cy="66" r="6" fill="#fff0f7"/>
+    </svg>`
+  },
+  oren: {
+    name:'Oren', color:'#ff8c00', light:'#ffe4b5', glow:'rgba(255,140,0,.9)',
+    pattern:[1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+    type:'kick', notes:[],
+    svg: (s=80) => `<svg width="${s}" height="${s+10}" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="40" cy="78" rx="26" ry="7" fill="rgba(0,0,0,.18)"/>
+      <!-- antennae --><line x1="40" y1="20" x2="28" y2="8" stroke="#ffa020" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="27" cy="7" r="5" fill="#ffcc44"/>
+      <line x1="40" y1="20" x2="52" y2="8" stroke="#ffa020" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="53" cy="7" r="5" fill="#ffcc44"/>
+      <!-- body --><ellipse cx="40" cy="68" rx="24" ry="18" fill="#ffa030"/>
+      <!-- head --><circle cx="40" cy="46" r="28" fill="#ffb040"/>
+      <circle cx="28" cy="38" r="14" fill="#ffc060" opacity=".5"/>
+      <!-- headphones --><path d="M14 44 Q14 24 40 24 Q66 24 66 44" fill="none" stroke="#442200" stroke-width="5" stroke-linecap="round"/>
+      <rect x="10" y="42" width="10" height="14" rx="5" fill="#331a00"/>
+      <rect x="60" y="42" width="10" height="14" rx="5" fill="#331a00"/>
+      <!-- onesie --><ellipse cx="40" cy="78" rx="20" ry="10" fill="#fff3cc"/>
+      <!-- eyes --><ellipse cx="31" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="32" cy="48" rx="4" ry="5" fill="#1a0800"/>
+      <circle cx="34" cy="45" r="2" fill="white"/>
+      <ellipse cx="49" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="50" cy="48" rx="4" ry="5" fill="#1a0800"/>
+      <circle cx="52" cy="45" r="2" fill="white"/>
+      <!-- nose --><ellipse cx="40" cy="54" rx="4" ry="3" fill="#c05000"/>
+      <!-- mouth --><path d="M33 59 Q40 65 47 59" stroke="#c05000" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- blush --><ellipse cx="22" cy="55" rx="8" ry="5" fill="#ff9900" opacity=".4"/>
+      <ellipse cx="58" cy="55" rx="8" ry="5" fill="#ff9900" opacity=".4"/>
+    </svg>`
+  },
+  sky: {
+    name:'Sky', color:'#29b6f6', light:'#e1f5fe', glow:'rgba(41,182,246,.9)',
+    pattern:[1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+    type:'mbox', notes:[1047,1319,1175,1047,1568,1319],
+    svg: (s=80) => `<svg width="${s}" height="${s+10}" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="40" cy="78" rx="26" ry="7" fill="rgba(0,0,0,.18)"/>
+      <!-- bear ears --><circle cx="18" cy="22" r="13" fill="#29b6f6"/>
+      <circle cx="18" cy="22" r="8" fill="#7dd8fa"/>
+      <circle cx="62" cy="22" r="13" fill="#29b6f6"/>
+      <circle cx="62" cy="22" r="8" fill="#7dd8fa"/>
+      <!-- body --><ellipse cx="40" cy="68" rx="24" ry="18" fill="#29b6f6"/>
+      <!-- head --><circle cx="40" cy="46" r="28" fill="#4fc3f7"/>
+      <circle cx="28" cy="38" r="15" fill="#81d4fa" opacity=".5"/>
+      <!-- onesie --><ellipse cx="40" cy="78" rx="20" ry="10" fill="#e1f5fe"/>
+      <!-- star --><text x="33" y="82" font-size="12" fill="#29b6f6">⭐</text>
+      <!-- eyes --><ellipse cx="31" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="32" cy="48" rx="4.5" ry="5.5" fill="#0d3a5c"/>
+      <circle cx="34" cy="45" r="2" fill="white"/>
+      <ellipse cx="49" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="50" cy="48" rx="4.5" ry="5.5" fill="#0d3a5c"/>
+      <circle cx="52" cy="45" r="2" fill="white"/>
+      <!-- single hair --><line x1="40" y1="18" x2="40" y2="12" stroke="#0d3a5c" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- nose --><ellipse cx="40" cy="54" rx="4" ry="3" fill="#0288d1"/>
+      <!-- mouth --><path d="M33 59 Q40 65 47 59" stroke="#0288d1" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- blush --><ellipse cx="21" cy="55" rx="8" ry="5" fill="#4fc3f7" opacity=".55"/>
+      <ellipse cx="59" cy="55" rx="8" ry="5" fill="#4fc3f7" opacity=".55"/>
+    </svg>`
+  },
+  raddy: {
+    name:'Raddy', color:'#ef5350', light:'#ffcdd2', glow:'rgba(239,83,80,.9)',
+    pattern:[0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,1,0],
+    type:'snare', notes:[],
+    svg: (s=80) => `<svg width="${s}" height="${s+10}" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="40" cy="78" rx="26" ry="7" fill="rgba(0,0,0,.18)"/>
+      <!-- spiky hair --><ellipse cx="20" cy="22" rx="7" ry="14" fill="#c62828" transform="rotate(-25,20,22)"/>
+      <ellipse cx="32" cy="16" rx="7" ry="14" fill="#c62828" transform="rotate(-10,32,16)"/>
+      <ellipse cx="40" cy="14" rx="7" ry="14" fill="#c62828"/>
+      <ellipse cx="48" cy="16" rx="7" ry="14" fill="#c62828" transform="rotate(10,48,16)"/>
+      <ellipse cx="60" cy="22" rx="7" ry="14" fill="#c62828" transform="rotate(25,60,22)"/>
+      <!-- body --><ellipse cx="40" cy="68" rx="24" ry="18" fill="#ef5350"/>
+      <!-- head --><circle cx="40" cy="46" r="28" fill="#ff7070"/>
+      <circle cx="28" cy="38" r="14" fill="#ff9090" opacity=".5"/>
+      <!-- onesie --><ellipse cx="40" cy="78" rx="20" ry="10" fill="#ffcdd2"/>
+      <!-- eyes --><ellipse cx="31" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="32" cy="48" rx="4" ry="5" fill="#1a0000"/>
+      <circle cx="34" cy="45" r="2" fill="white"/>
+      <ellipse cx="49" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="50" cy="48" rx="4" ry="5" fill="#1a0000"/>
+      <circle cx="52" cy="45" r="2" fill="white"/>
+      <!-- nose --><ellipse cx="40" cy="54" rx="4" ry="3" fill="#b71c1c"/>
+      <!-- determined mouth --><path d="M34 60 Q40 57 46 60" stroke="#b71c1c" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- blush --><ellipse cx="21" cy="55" rx="8" ry="5" fill="#ff5252" opacity=".45"/>
+      <ellipse cx="59" cy="55" rx="8" ry="5" fill="#ff5252" opacity=".45"/>
+    </svg>`
+  },
+  brud: {
+    name:'Brud', color:'#8d6e63', light:'#d7ccc8', glow:'rgba(141,110,99,.9)',
+    pattern:[1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
+    type:'bass', notes:[110,98,110,130,87],
+    svg: (s=80) => `<svg width="${s}" height="${s+10}" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="40" cy="78" rx="26" ry="7" fill="rgba(0,0,0,.18)"/>
+      <!-- hair flop --><ellipse cx="30" cy="20" rx="20" ry="12" fill="#5d4037" transform="rotate(-15,30,20)"/>
+      <ellipse cx="50" cy="22" rx="14" ry="10" fill="#6d4c41" transform="rotate(10,50,22)"/>
+      <!-- body --><ellipse cx="40" cy="68" rx="24" ry="18" fill="#8d6e63"/>
+      <!-- head --><circle cx="40" cy="46" r="28" fill="#a1887f"/>
+      <circle cx="28" cy="38" r="14" fill="#bcaaa4" opacity=".5"/>
+      <!-- onesie --><ellipse cx="40" cy="78" rx="20" ry="10" fill="#d7ccc8"/>
+      <!-- eyes (half-lid) --><ellipse cx="31" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="32" cy="49" rx="4" ry="4" fill="#1a0800"/>
+      <circle cx="34" cy="46" r="2" fill="white"/>
+      <path d="M24 43 Q31 40 38 43" stroke="#1a0800" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="49" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="50" cy="49" rx="4" ry="4" fill="#1a0800"/>
+      <circle cx="52" cy="46" r="2" fill="white"/>
+      <path d="M42 43 Q49 40 56 43" stroke="#1a0800" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- nose --><ellipse cx="40" cy="54" rx="4" ry="3" fill="#6d4c41"/>
+      <!-- smile --><path d="M33 59 Q40 65 47 59" stroke="#6d4c41" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- blush --><ellipse cx="21" cy="55" rx="8" ry="5" fill="#a1887f" opacity=".55"/>
+      <ellipse cx="59" cy="55" rx="8" ry="5" fill="#a1887f" opacity=".55"/>
+    </svg>`
+  },
+  wenda: {
+    name:'Wenda', color:'#ab47bc', light:'#f3e5f5', glow:'rgba(171,71,188,.9)',
+    pattern:[1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    type:'pad', notes:[392,494,587,494],
+    svg: (s=80) => `<svg width="${s}" height="${s+10}" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="40" cy="78" rx="26" ry="7" fill="rgba(0,0,0,.18)"/>
+      <!-- flowing hair --><ellipse cx="40" cy="22" rx="28" ry="16" fill="#ce93d8"/>
+      <ellipse cx="16" cy="36" rx="10" ry="22" fill="#ba68c8" transform="rotate(10,16,36)"/>
+      <ellipse cx="64" cy="36" rx="10" ry="22" fill="#ba68c8" transform="rotate(-10,64,36)"/>
+      <!-- body --><ellipse cx="40" cy="68" rx="24" ry="18" fill="#ab47bc"/>
+      <!-- head --><circle cx="40" cy="46" r="28" fill="#ce93d8"/>
+      <circle cx="28" cy="38" r="15" fill="#e1bee7" opacity=".5"/>
+      <!-- onesie --><ellipse cx="40" cy="78" rx="20" ry="10" fill="#f3e5f5"/>
+      <!-- star on onesie --><text x="32" y="82" font-size="12">⭐</text>
+      <!-- eyes (long lash) --><ellipse cx="31" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="32" cy="48" rx="4" ry="5" fill="#1a0020"/>
+      <circle cx="34" cy="45" r="2" fill="white"/>
+      <line x1="24" y1="41" x2="21" y2="37" stroke="#1a0020" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="28" y1="39" x2="27" y2="34" stroke="#1a0020" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="33" y1="39" x2="33" y2="34" stroke="#1a0020" stroke-width="1.5" stroke-linecap="round"/>
+      <ellipse cx="49" cy="47" rx="7" ry="8" fill="white"/>
+      <ellipse cx="50" cy="48" rx="4" ry="5" fill="#1a0020"/>
+      <circle cx="52" cy="45" r="2" fill="white"/>
+      <line x1="43" y1="39" x2="43" y2="34" stroke="#1a0020" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="48" y1="39" x2="49" y2="34" stroke="#1a0020" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="53" y1="41" x2="55" y2="37" stroke="#1a0020" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- nose --><ellipse cx="40" cy="54" rx="4" ry="3" fill="#8e24aa"/>
+      <!-- singing mouth --><ellipse cx="40" cy="60" rx="5" ry="4" fill="#6a0080"/>
+      <ellipse cx="40" cy="60" rx="3.5" ry="2.5" fill="#380040"/>
+      <!-- blush --><ellipse cx="21" cy="55" rx="8" ry="5" fill="#ce93d8" opacity=".55"/>
+      <ellipse cx="59" cy="55" rx="8" ry="5" fill="#ce93d8" opacity=".55"/>
+    </svg>`
+  }
+};
+
+// ── AUDIO ENGINE ──────────────────────────────────────────────────────────────
+let actx = null;
+const masterVol = () => { const g = actx.createGain(); g.gain.value = 0.55; g.connect(actx.destination); return g; };
+
+function initAudio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+}
+
+function playKick() {
+  const o = actx.createOscillator(), g = actx.createGain(), mv = masterVol();
+  o.connect(g); g.connect(mv);
+  o.frequency.setValueAtTime(180, actx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.28);
+  g.gain.setValueAtTime(0.9, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.28);
+  o.start(); o.stop(actx.currentTime + 0.28);
+}
+
+function playSnare() {
+  const sz = actx.sampleRate * 0.18;
+  const buf = actx.createBuffer(1, sz, actx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < sz; i++) d[i] = Math.random() * 2 - 1;
+  const src = actx.createBufferSource();
+  src.buffer = buf;
+  const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = 0.8;
+  const g = actx.createGain(), mv = masterVol();
+  g.gain.setValueAtTime(0.55, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.14);
+  src.connect(f); f.connect(g); g.connect(mv);
+  src.start(); src.stop(actx.currentTime + 0.14);
+}
+
+function playBell(freq) {
+  const o = actx.createOscillator(), g = actx.createGain(), mv = masterVol();
+  o.type = 'sine'; o.connect(g); g.connect(mv);
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(0.35, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.55);
+  o.start(); o.stop(actx.currentTime + 0.55);
+}
+
+function playMusicBox(freq) {
+  const o = actx.createOscillator(), g = actx.createGain(), mv = masterVol();
+  o.type = 'triangle'; o.connect(g); g.connect(mv);
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(0.28, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.35);
+  o.start(); o.stop(actx.currentTime + 0.35);
+}
+
+function playBass(freq) {
+  const o = actx.createOscillator(), g = actx.createGain(), mv = masterVol();
+  o.type = 'sawtooth'; o.connect(g); g.connect(mv);
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(0.4, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.45);
+  o.start(); o.stop(actx.currentTime + 0.45);
+}
+
+function playPad(freq) {
+  const o = actx.createOscillator(), g = actx.createGain(), mv = masterVol();
+  o.type = 'sine'; o.connect(g); g.connect(mv);
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0, actx.currentTime);
+  g.gain.linearRampToValueAtTime(0.22, actx.currentTime + 0.35);
+  g.gain.linearRampToValueAtTime(0.0, actx.currentTime + 2.2);
+  o.start(); o.stop(actx.currentTime + 2.2);
+}
+
+function triggerSound(id, step) {
+  const c = CHARS[id];
+  const ni = (step % (c.notes?.length || 1));
+  switch (c.type) {
+    case 'kick':  playKick(); break;
+    case 'snare': playSnare(); break;
+    case 'bell':  playBell(c.notes[ni]); break;
+    case 'mbox':  playMusicBox(c.notes[ni]); break;
+    case 'bass':  playBass(c.notes[ni]); break;
+    case 'pad':   playPad(c.notes[ni]); break;
+  }
+}
+
+// ── SEQUENCER ─────────────────────────────────────────────────────────────────
+const BPM = 118;
+const STEP_MS = (60000 / BPM) / 4;
+let step = 0;
+let seqTimer = null;
+const activeSet = new Set();
+const noteCounters = {};
+
+function startSeq() {
+  if (seqTimer) return;
+  seqTimer = setInterval(tick, STEP_MS);
+}
+
+function stopSeq() {
+  if (seqTimer) { clearInterval(seqTimer); seqTimer = null; }
+  step = 0;
+  updateBeatBar(-1);
+}
+
+function tick() {
+  updateBeatBar(step);
+  for (const id of activeSet) {
+    const c = CHARS[id];
+    if (c.pattern[step]) {
+      noteCounters[id] = (noteCounters[id] || 0) + 1;
+      triggerSound(id, noteCounters[id]);
+      flashChar(id);
+    }
+  }
+  step = (step + 1) % 16;
+}
+
+// ── BEAT BAR ──────────────────────────────────────────────────────────────────
+const beatBar = document.getElementById('beat-bar');
+const stepEls = [];
+for (let i = 0; i < 16; i++) {
+  const d = document.createElement('div');
+  d.className = 'step' + (i % 4 === 0 ? ' quarter' : '');
+  beatBar.appendChild(d);
+  stepEls.push(d);
+}
+
+function updateBeatBar(s) {
+  stepEls.forEach((el, i) => el.classList.toggle('active', i === s));
+  if (s >= 0 && s % 4 === 0) stepEls[s].classList.add('accent');
+}
+
+// ── STAGE ─────────────────────────────────────────────────────────────────────
+const hint = document.getElementById('hint');
+const activeZone = document.getElementById('active-zone');
+const fireMeter = document.getElementById('fire-meter');
+const toast = document.getElementById('toast');
+
+let toastTimer = null;
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 1400);
+}
+
+function updateFireMeter() {
+  const n = activeSet.size;
+  if (n === 0) { fireMeter.textContent = 'tap a baby!'; fireMeter.style.color = '#ffcc00'; return; }
+  const labels = ['','🔥 warm','🔥🔥 hot!','🔥🔥🔥 fire!','⚡ FIRE BEAT!','🌟 LEGENDARY!!','💥 UNSTOPPABLE!!!'];
+  fireMeter.textContent = labels[Math.min(n, labels.length - 1)];
+  if (n >= 4) fireMeter.style.color = '#ff4466';
+  else if (n >= 3) fireMeter.style.color = '#ff8800';
+  else fireMeter.style.color = '#ffcc00';
+  if (n === 3) showToast('🔥 FIRE BEAT!');
+  if (n === 5) showToast('💥 LEGENDARY!');
+}
+
+function flashChar(id) {
+  const el = document.getElementById('stage-' + id);
+  if (!el) return;
+  el.classList.remove('playing');
+  void el.offsetWidth;
+  el.classList.add('playing', 'glow');
+  setTimeout(() => el.classList.remove('playing', 'glow'), 180);
+}
+
+function addToStage(id) {
+  if (activeSet.has(id)) { removeFromStage(id); return; }
+  if (activeSet.size >= 6) { showToast('stage is full! 🎵'); return; }
+  activeSet.add(id);
+  noteCounters[id] = 0;
+  hint.style.display = 'none';
+
+  const c = CHARS[id];
+  const wrap = document.createElement('div');
+  wrap.className = 'stage-char';
+  wrap.id = 'stage-' + id;
+  wrap.style.setProperty('--char-glow', c.glow);
+  wrap.innerHTML = c.svg(72) + `<div class="stage-name">${c.name}</div><div class="remove-ring">×</div>`;
+  wrap.onclick = () => removeFromStage(id);
+  activeZone.appendChild(wrap);
+
+  spawnSparkles(wrap);
+  if (activeSet.size === 1) startSeq();
+  updateTrayState(id, true);
+  updateFireMeter();
+}
+
+function removeFromStage(id) {
+  activeSet.delete(id);
+  const el = document.getElementById('stage-' + id);
+  if (el) {
+    el.style.animation = 'popIn .25s cubic-bezier(.34,1.56,.64,1) reverse forwards';
+    setTimeout(() => el.remove(), 230);
+  }
+  if (activeSet.size === 0) {
+    stopSeq();
+    hint.style.display = '';
+  }
+  updateTrayState(id, false);
+  updateFireMeter();
+}
+
+function updateTrayState(id, on) {
+  const el = document.getElementById('tray-' + id);
+  if (el) el.classList.toggle('on', on);
+}
+
+// ── TRAY ──────────────────────────────────────────────────────────────────────
+const charRow = document.getElementById('char-row');
+for (const [id, c] of Object.entries(CHARS)) {
+  const wrap = document.createElement('div');
+  wrap.className = 'tray-char';
+  wrap.id = 'tray-' + id;
+  wrap.innerHTML = c.svg(56) + `<div class="tray-label">${c.name}</div>`;
+  wrap.onclick = () => { initAudio(); addToStage(id); };
+  charRow.appendChild(wrap);
+}
+
+// ── SPARKLES ──────────────────────────────────────────────────────────────────
+function spawnSparkles(el) {
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const colors = ['#ff6fa3','#ffcc00','#a78bfa','#4fc3f7','#ff8c00','#fff'];
+  for (let i = 0; i < 10; i++) {
+    const s = document.createElement('div');
+    s.className = 'spark';
+    const size = 5 + Math.random() * 8;
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 30 + Math.random() * 50;
+    s.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${cx - size/2}px;top:${cy - size/2}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      --dx:${Math.cos(angle)*dist}px;
+      --dy:${Math.sin(angle)*dist}px;
+      animation-duration:${0.4+Math.random()*.4}s;
+      animation-delay:${Math.random()*.1}s;
+      z-index:999;
+    `;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 800);
+  }
+}
+</script>
+</body>
+</html>
