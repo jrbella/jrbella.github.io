@@ -597,6 +597,15 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(2.8rem,8vw,5rem);l
 .wfact{text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:10px 16px;font:inherit;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:2px}
 .wfact .label{margin:0}
 .wfact b{font-family:var(--display);font-size:1.2rem}
+.gshelf{margin-top:20px;border:3px solid var(--ink);border-radius:24px;padding:14px 16px;background:linear-gradient(135deg,#FFF8DC,#F9E3A0)}
+.gshelf-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px}
+.gshelf-h .sec-h{margin:0;font-size:1.3rem}
+.gshelf-h span{font-family:var(--display);font-weight:600;color:#8A6A10}
+.glist{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
+.gtrophy{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;background:rgba(255,255,255,.7);border-radius:18px;padding:10px 14px;min-width:120px}
+.gball{width:54px;height:54px;border-radius:50%;border:3px solid var(--ink);background:linear-gradient(135deg,#FFF3B0,#F5C84C 45%,#D99A1E 80%,#F2C24A);box-shadow:0 0 14px rgba(245,200,76,.8);animation:suppulse 1.2s ease-in-out infinite alternate}
+.gtrophy b{font-family:var(--display);font-size:1rem}
+.gtrophy small{font-size:.8rem;color:var(--soft)}
 .smashbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:16px}
 .smashbar #smashGo{font-size:1.5rem;padding:12px 34px}
 .speeds{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -1003,6 +1012,10 @@ footer{padding-block:24px 36px;color:var(--soft);font-size:.95rem;text-align:cen
       <button class="btn" id="smashRand">Random pair</button>
       <button class="btn" id="smashReset">Reset</button>
     </div>
+  </div>
+  <div class="gshelf" id="goldShelf" hidden>
+    <div class="gshelf-h"><h3 class="sec-h">Gold planet trophy case</h3><span id="goldCountTxt"></span></div>
+    <div class="glist" id="goldList"></div>
   </div>
   <div class="wfacts">
     <button class="wfact" data-w="a"><span class="label">World 1</span><b id="nameA"></b><span id="factA"></span></button>
@@ -2299,7 +2312,7 @@ document.querySelectorAll('.wctl').forEach(el=>el.addEventListener('click',e=>{c
   const k=WORDER.indexOf(sm[w]),n=WORDER.length;sm[w]=WORDER[(k+(+b.dataset.d)+n)%n];sm.pop=w;sm.popAt=performance.now();drawPickers();}));
 document.querySelectorAll('.wfact').forEach(b=>b.onclick=()=>{openSheet(b.dataset.w);document.querySelector('.smash-stage').scrollIntoView({behavior:'smooth',block:'center'});});
 smCv.addEventListener('pointerdown',e=>{if(sm.sheet)return;
-  if(sm.phase==='after'&&sm.t>1.2){smReset();return;}
+  if(sm.phase==='after'){if(sm.res==='gold'){if(sm.t>1.2)goldTap();return;}if(sm.t>3.5)smReset();return;}
   if(sm.phase!=='idle')return;const r=smCv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,cy=sm.H*.45;
   const hit=[['a',sm.W*.25,dispR(WORLDS[sm.a].R)],['b',sm.W*.75,dispR(WORLDS[sm.b].R)]].find(([w,cx,rr])=>Math.hypot(x-cx,y-cy)<Math.max(rr+18,48));
   if(hit)openSheet(hit[0]);});
@@ -2321,6 +2334,12 @@ function decide(){
   sm.lastRes=res;return res;
 }
 let goldCount=0;try{goldCount=+(localStorage.getItem('jw-gold')||0)||0;}catch(e){}
+let goldList=store('jw-goldlist')||[];
+function goldTap(){const x=sm.W*.5,y=sm.H*.45;for(let i=0;i<(LOW?24:60);i++){const a=Math.random()*6.28,v=(120+Math.random()*320)*sm.H/400;sm.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.7+Math.random()*.8,age:0,c:rnd(['#F5C84C','#FFF3B0','#E0A82E','#FFFFFF']),s:1.5+Math.random()*3});}
+  const a=sm.fx||sharedAC();if(a){const t=a.currentTime;[1568,1976,2349].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.06);g.gain.linearRampToValueAtTime(.1,t+i*.06+.01);g.gain.exponentialRampToValueAtTime(.001,t+i*.06+.4);o.connect(g).connect(a.destination);o.start(t+i*.06);o.stop(t+i*.06+.45);});}}
+function drawGoldShelf(){const el=$('#goldShelf');if(!el)return;el.hidden=!goldList.length;
+  $('#goldList').innerHTML=goldList.map(gp=>`<div class="gtrophy"><span class="gball"></span><b>${esc(gp.n)}</b><small>${esc(gp.a)} + ${esc(gp.b)}</small></div>`).join('');
+  $('#goldCountTxt').textContent=goldCount+(goldCount===1?' gold planet found':' gold planets found');}
 function goldSound(){const a=sm.fx;if(!a)return;const t=a.currentTime+.9;[784,988,1175,1568,1976,2349].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain();o.type='triangle';o.frequency.value=f;
   g.gain.setValueAtTime(0,t+i*.09);g.gain.linearRampToValueAtTime(.16,t+i*.09+.01);g.gain.exponentialRampToValueAtTime(.001,t+i*.09+.6);o.connect(g).connect(a.destination);o.start(t+i*.09);o.stop(t+i*.09+.7);});}
 function newWorld(A,B){
@@ -2344,7 +2363,7 @@ function impact(px,py){
     sm.parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.6+Math.random()*1.1,age:0,c:rnd(cols),s:1+Math.random()*3});}
   const big=A.R>=B.R?A:B,small=big===A?B:A;sm.big=big;sm.small=small;
   if(sm.res==='gold'){const m=newWorld(A,B);sm.nw={n:'Golden '+m.n,k:'planet',R:m.R,c1:'#F5C84C',c2:'#D99A1E',st:'gold',sp:[]};sm.nwR=dispR(sm.nw.R);sm.goldBurst=false;
-    goldCount++;try{localStorage.setItem('jw-gold',goldCount);}catch(e){}goldSound();}
+    goldCount++;try{localStorage.setItem('jw-gold',goldCount);}catch(e){}goldSound();goldList.unshift({n:sm.nw.n,a:A.n,b:B.n});goldList=goldList.slice(0,24);store('jw-goldlist',goldList);setTimeout(drawGoldShelf,1500);}
   if(sm.res==='merge'||sm.res==='mergeRing'){sm.nw=newWorld(A,B);sm.nwR=dispR(sm.nw.R);if(sm.res==='mergeRing')sm.ringCol=[A.c1,B.c1,A.c2,B.c2];}
   if(sm.res==='rings'){sm.ringCol=[small.c1,small.c2,'#F1ECE6'];}
   if(sm.res==='rings'||sm.res==='mergeRing'){const R0=sm.res==='rings'?dispR(big.R):sm.nwR;
@@ -2413,7 +2432,7 @@ function smFrame(ts){
 }
 function showResult(){
   const A=WORLDS[sm.a],B=WORLDS[sm.b],big=sm.big,small=sm.small;let T,X;
-  if(sm.res==='gold'){T='SUPER RARE! You made a gold planet: '+sm.nw.n+'!';X='You found the rarest thing in Solar Smash, a whole planet made of shiny gold! Only about 1 smash in 15 makes one. Real gold was made long ago when giant dead stars crashed together. Gold planets found: '+goldCount+'.';}
+  if(sm.res==='gold'){T='SUPER RARE! You made a gold planet: '+sm.nw.n+'!';X='You found the rarest thing in Solar Smash, a whole planet made of shiny gold! Only about 1 smash in 15 makes one. Real gold was made long ago when giant dead stars crashed together. Gold planets found: '+goldCount+'. Tap it to make it sparkle!';}
   if(sm.res==='merge'){T='New planet: '+sm.nw.n+'!';X=(A===B?'Two '+A.n+'s':A.n+' and '+B.n)+' squished together into one bigger world. Scientists think our Moon was made when a planet called Theia crashed into Earth long ago.';}
   if(sm.res==='mergeRing'){T='New planet with rings: '+sm.nw.n+'!';X='They smashed into one new world, and leftover pieces made a ring around it. Saturn\'s rings are made of ice and rock pieces too.';}
   if(sm.res==='rings'){T='Rings for '+big.n+'!';X=small.n+' broke into billions of tiny pieces that now circle around '+big.n+'. Scientists think Saturn\'s rings might have come from a moon that broke apart.';}
@@ -2422,7 +2441,7 @@ function showResult(){
 }
 function startSmash(){smSize();if(!sm.running){sm.running=true;sm.last=performance.now();requestAnimationFrame(smFrame);}}
 window.addEventListener('resize',()=>{if(cur==='smash')smSize();});
-try{drawPickers();}catch(e){console.error(e);}
+try{drawPickers();}catch(e){console.error(e);}try{drawGoldShelf();}catch(e){console.error(e);}
 
 $('#th-stars').innerHTML=`<svg viewBox="0 0 200 150" aria-hidden="true"><g fill="#F1ECE6"><circle cx="18" cy="24" r="1.4"/><circle cx="182" cy="30" r="1.2"/><circle cx="170" cy="128" r="1.5"/><circle cx="26" cy="122" r="1.2"/><circle cx="100" cy="134" r="1"/><circle cx="140" cy="20" r="1"/></g>
 <path d="M40 52 L70 44 L96 50 L118 62 L120 92 L156 96 L162 66 L118 62" fill="none" stroke="#C9BBD6" stroke-width="2.5" stroke-linejoin="round"/>
